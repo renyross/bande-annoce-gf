@@ -203,7 +203,7 @@ a { color: inherit; text-decoration: none; }
 .nav-cta {
   background: var(--red);
   color: #fff !important;
-  padding: 9px 20px;
+  padding: 10px 32px;
   border-radius: 30px;
   font-weight: 700;
   font-family: var(--font-heading);
