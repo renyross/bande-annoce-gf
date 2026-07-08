@@ -255,14 +255,16 @@ a { color: inherit; text-decoration: none; }
   inset: 0;
   z-index: 0;
 }
-.hero-bg img {
+.hero-bg img,
+.hero-bg video {
   width: 100%; height: 100%; object-fit: cover;
   object-position: center 40%;
 }
 .hero-bg.img-missing {
   background: linear-gradient(135deg, var(--deep-blue-2), var(--deep-blue-3) 60%, #142a4d);
 }
-.hero-bg.img-missing img { display: none; }
+.hero-bg.img-missing img,
+.hero-bg.img-missing video { display: none; }
 .hero-scrim {
   position: absolute; inset: 0; z-index: 1;
   background: 
@@ -520,9 +522,10 @@ a { color: inherit; text-decoration: none; }
 .cutout-player {
   position: relative;
   width: 100%;
-  max-width: 440px;
+  max-width: 490px;
   height: auto;
   object-fit: contain;
+  border-radius: 14px;
   filter: drop-shadow(0 15px 35px rgba(37, 99, 235, 0.45));
   transform: rotate(-3deg);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.4s ease;
@@ -674,9 +677,10 @@ a { color: inherit; text-decoration: none; }
    TEAMS
    ========================================================= */
 .teams-section { background: var(--deep-blue-3); }
+.teams-section .container { max-width: 1460px; }
 .teams-grid {
   display: grid;
-  grid-template-columns: 1fr 1.2fr 1fr;
+  grid-template-columns: 1fr 1.3fr 1fr;
   gap: 32px;
   align-items: center;
   width: 100%;
@@ -1089,7 +1093,8 @@ a { color: inherit; text-decoration: none; }
    RESPONSIVE
    ========================================================= */
 @media (max-width: 960px) {
-  .hero-bg img {
+  .hero-bg img,
+  .hero-bg video {
     object-position: center center;
   }
   .hero-scrim {
