@@ -257,7 +257,7 @@ a { color: inherit; text-decoration: none; }
 }
 .hero-bg img {
   width: 100%; height: 100%; object-fit: cover;
-  object-position: center 10%;
+  object-position: center 40%;
 }
 .hero-bg.img-missing {
   background: linear-gradient(135deg, var(--deep-blue-2), var(--deep-blue-3) 60%, #142a4d);
