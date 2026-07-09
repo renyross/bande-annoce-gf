@@ -87,4 +87,33 @@
       newsletterSuccess.hidden = false;
     });
   }
+
+  /* ============ VIDEO TRAILER MODAL ============ */
+  const trailerBtn = document.getElementById('hero-trailer-btn');
+  const videoModalOverlay = document.getElementById('video-modal-overlay');
+  const videoModalClose = document.getElementById('video-modal-close');
+  const trailerVideo = document.getElementById('trailer-video');
+
+  const openVideoModal = (e) => {
+    if (e) e.preventDefault();
+    videoModalOverlay.hidden = false;
+    trailerVideo.play();
+  };
+
+  const closeVideoModal = () => {
+    videoModalOverlay.hidden = true;
+    trailerVideo.pause();
+    trailerVideo.currentTime = 0;
+  };
+
+  if (trailerBtn && videoModalOverlay && trailerVideo) {
+    trailerBtn.addEventListener('click', openVideoModal);
+    videoModalClose.addEventListener('click', closeVideoModal);
+    videoModalOverlay.addEventListener('click', (e) => {
+      if (e.target === videoModalOverlay) closeVideoModal();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !videoModalOverlay.hidden) closeVideoModal();
+    });
+  }
 })();

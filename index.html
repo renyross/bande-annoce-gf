@@ -50,7 +50,7 @@
       </h1>
       <p class="hero-tagline">15 ans après. Une nouvelle Coupe.<br>Un Souffle qui n'a jamais disparu.</p>
       <div class="hero-cta-row">
-        <a href="#trailer" class="btn btn-primary flux-btn">Voir la bande-annonce</a>
+        <a href="#trailer" class="btn btn-primary flux-btn" id="hero-trailer-btn">Voir la bande-annonce</a>
       </div>
       
       <!-- Video thumbnails -->
@@ -293,6 +293,18 @@
     <span></span><span></span><span></span>
   </span>
 </button>
+
+<!-- ============ MODALE TRAILER ============ -->
+<div class="video-modal-overlay" id="video-modal-overlay" hidden>
+  <div class="video-modal-box">
+    <button class="modal-close" id="video-modal-close" aria-label="Fermer la vidéo">✕</button>
+    <div class="video-container">
+      <video id="trailer-video" controls playsinline>
+        <source src="assets/video/GALACTIK_FOOTBALL_—_TEASER_s.mp4" type="video/mp4">
+      </video>
+    </div>
+  </div>
+</div>
 
 <script src="js/script.js"></script>
 <script>
