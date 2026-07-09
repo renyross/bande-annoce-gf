@@ -93,11 +93,17 @@
   const videoModalOverlay = document.getElementById('video-modal-overlay');
   const videoModalClose = document.getElementById('video-modal-close');
   const trailerVideo = document.getElementById('trailer-video');
+  const heroThumbs = document.querySelectorAll('.hero-thumb');
 
-  const openVideoModal = (e) => {
-    if (e) e.preventDefault();
+  const openVideoModal = (src) => {
     videoModalOverlay.hidden = false;
-    trailerVideo.play();
+    if (src) {
+      trailerVideo.src = src;
+    } else {
+      trailerVideo.src = 'assets/video/GALACTIK_FOOTBALL_—_TEASER_s.mp4';
+    }
+    trailerVideo.load();
+    trailerVideo.play().catch(() => {});
   };
 
   const closeVideoModal = () => {
@@ -106,8 +112,23 @@
     trailerVideo.currentTime = 0;
   };
 
-  if (trailerBtn && videoModalOverlay && trailerVideo) {
-    trailerBtn.addEventListener('click', openVideoModal);
+  if (videoModalOverlay && trailerVideo) {
+    if (trailerBtn) {
+      trailerBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        openVideoModal('assets/video/GALACTIK_FOOTBALL_—_TEASER_s.mp4');
+      });
+    }
+
+    heroThumbs.forEach(thumb => {
+      thumb.addEventListener('click', () => {
+        const thumbVid = thumb.querySelector('video');
+        if (thumbVid) {
+          openVideoModal(thumbVid.getAttribute('src'));
+        }
+      });
+    });
+
     videoModalClose.addEventListener('click', closeVideoModal);
     videoModalOverlay.addEventListener('click', (e) => {
       if (e.target === videoModalOverlay) closeVideoModal();
