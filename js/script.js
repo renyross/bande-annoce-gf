@@ -236,18 +236,38 @@
 
     // Fetch slot counts and render the grid
     let slotsData = [];
+    let isMockMode = false;
+
+    // Mock slots for static hosting demo (GitHub Pages)
+    const MOCK_SLOTS = [
+      { slot: "12h00 – 13h30", capacity: 200, registered: 45, remaining: 155 },
+      { slot: "13h30 – 15h00", capacity: 200, registered: 185, remaining: 15 },
+      { slot: "15h00 – 16h30", capacity: 200, registered: 90, remaining: 110 },
+      { slot: "16h30 – 18h00", capacity: 200, registered: 200, remaining: 0 },
+      { slot: "18h00 – 19h30", capacity: 200, registered: 120, remaining: 80 },
+      { slot: "19h30 – 20h00", capacity: 200, registered: 198, remaining: 2 }
+    ];
+
     async function fetchSlots() {
       try {
         const res = await fetch('/api/slots');
         if (!res.ok) throw new Error("Impossible de charger les créneaux.");
         slotsData = await res.json();
+        isMockMode = false;
         renderSlotsGrid(slotsData);
         updateSelectDropdown(slotsData);
       } catch (err) {
-        console.error(err);
-        if (slotsGrid) {
-          slotsGrid.innerHTML = `<div class="slot-loading error" style="color: var(--red);">Erreur lors de la récupération des créneaux. Veuillez rafraîchir la page.</div>`;
+        console.warn("[Galactik Football] Serveur API non détecté. Utilisation du mode démonstration (Mock).");
+        isMockMode = true;
+        // Tente de charger depuis le localStorage pour persister les réservations de démo
+        const savedSlots = localStorage.getItem('galactik_mock_slots');
+        if (savedSlots) {
+          slotsData = JSON.parse(savedSlots);
+        } else {
+          slotsData = JSON.parse(JSON.stringify(MOCK_SLOTS));
         }
+        renderSlotsGrid(slotsData);
+        updateSelectDropdown(slotsData);
       }
     }
 
@@ -413,6 +433,33 @@
       const statusMessage = document.getElementById('register-status-message');
       statusMessage.style.display = "none";
       statusMessage.className = "form-status-message";
+
+      if (isMockMode) {
+        // Mode Démo (Statique / GitHub Pages)
+        const chosenSlotIndex = slotsData.findIndex(s => s.slot === slotSelect.value);
+        if (chosenSlotIndex !== -1) {
+          slotsData[chosenSlotIndex].registered += requestedPeople;
+          slotsData[chosenSlotIndex].remaining = Math.max(0, slotsData[chosenSlotIndex].remaining - requestedPeople);
+          localStorage.setItem('galactik_mock_slots', JSON.stringify(slotsData));
+        }
+        
+        // Simuler le succès de l'enregistrement
+        openPopupModal();
+        popupForm.reset();
+        selectedSlot = "";
+        
+        // Nettoyer les classes de validation
+        const groups = popupForm.querySelectorAll('.form-group');
+        groups.forEach(g => g.classList.remove('valid', 'invalid'));
+        
+        // Rafraîchir l'affichage local
+        renderSlotsGrid(slotsData);
+        updateSelectDropdown(slotsData);
+        
+        submitBtn.disabled = false;
+        submitBtnLabel.textContent = "Confirmer mon inscription";
+        return;
+      }
 
       try {
         const payload = {
