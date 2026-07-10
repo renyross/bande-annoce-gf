@@ -26,7 +26,8 @@
       <a href="#serie">La série</a>
       <a href="#evenement">L'événement</a>
       <a href="#collector">Collector</a>
-      <a href="#newsletter" class="nav-cta">Réserver ma place</a>
+      <a href="#popup-store">Pop-up Store</a>
+      <a href="#popup-store" class="nav-cta">Réserver</a>
     </nav>
     <button class="nav-toggle" id="nav-toggle" aria-label="Ouvrir le menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -56,7 +57,7 @@
       <!-- Video thumbnails -->
       <div class="hero-thumbnails">
         <div class="hero-thumb">
-          <video src="assets/video/histoire.mp4" autoplay loop muted playsinline poster="assets/images/grand-rex.png"></video>
+          <video src="assets/video/GALACTIK_FOOTBALL_—_TEASER_s.mp4" autoplay loop muted playsinline poster="assets/images/grand-rex.png"></video>
           <div class="play-btn-circle">▶</div>
         </div>
         <div class="hero-thumb">
@@ -211,12 +212,100 @@
     </div>
     <div class="collector-text reveal">
       <p>Un pop-up store événement débarque chez Decathlon : maillots des trois équipes, ballons Flux et éditions collector en précommande exclusive avant la sortie du film.</p>
-      <a href="#" class="link-more">En savoir plus <span aria-hidden="true">→</span></a>
+      <a href="#popup-store" class="btn btn-primary flux-btn" style="margin-top: 1rem; display: inline-block;">S'inscrire au Pop-up Store</a>
     </div>
   </div>
 </section>
 
+<!-- ============ 6B. POP-UP STORE REGISTRATION ============ -->
+<section class="section popup-section" id="popup-store">
+  <div class="container">
+    <div class="popup-title-row reveal">
+      <span class="dot"></span>
+      <h2 class="section-title">INSCRIPTION POP-UP STORE</h2>
+    </div>
+    <p class="popup-subtitle reveal">
+      L'événement se déroule de <strong>12h00 à 20h00</strong>. Réservez votre créneau d'arrivée par vagues de <strong>1h30</strong>. Jauge limitée à 200 places par créneau.
+    </p>
 
+    <!-- Visual Interactive Grid of Slots -->
+    <div class="slots-grid reveal" id="slots-grid">
+      <!-- Loaded dynamically via JS -->
+      <div class="slot-loading">Chargement des créneaux de visite...</div>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="registration-form-wrap reveal">
+      <form class="registration-form" id="popup-register-form" novalidate>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="register-firstname">Prénom</label>
+            <input type="text" id="register-firstname" name="firstname" autocomplete="given-name" placeholder="Votre prénom" required>
+            <span class="error-msg" id="err-firstname"></span>
+          </div>
+          <div class="form-group">
+            <label for="register-lastname">Nom</label>
+            <input type="text" id="register-lastname" name="lastname" autocomplete="family-name" placeholder="Votre nom" required>
+            <span class="error-msg" id="err-lastname"></span>
+          </div>
+          <div class="form-group">
+            <label for="register-email">Adresse e-mail</label>
+            <input type="email" id="register-email" name="email" autocomplete="email" placeholder="votre@email.com" required>
+            <span class="error-msg" id="err-email"></span>
+          </div>
+          <div class="form-group">
+            <label for="register-phone">Numéro de téléphone</label>
+            <input type="tel" id="register-phone" name="phone" autocomplete="tel" placeholder="06 12 34 56 78" required>
+            <span class="error-msg" id="err-phone"></span>
+          </div>
+          <div class="form-group">
+            <label for="register-slot">Créneau souhaité</label>
+            <select id="register-slot" name="slot" required>
+              <option value="" disabled selected>Sélectionnez un créneau</option>
+              <option value="12h00 – 13h30">12h00 – 13h30</option>
+              <option value="13h30 – 15h00">13h30 – 15h00</option>
+              <option value="15h00 – 16h30">15h00 – 16h30</option>
+              <option value="16h30 – 18h00">16h30 – 18h00</option>
+              <option value="18h00 – 19h30">18h00 – 19h30</option>
+              <option value="19h30 – 20h00">19h30 – 20h00</option>
+            </select>
+            <span class="error-msg" id="err-slot"></span>
+          </div>
+          <div class="form-group">
+            <label for="register-people">Nombre de personnes</label>
+            <select id="register-people" name="people_count" required>
+              <option value="1" selected>1 personne</option>
+              <option value="2">2 personnes</option>
+              <option value="3">3 personnes</option>
+              <option value="4">4 personnes</option>
+              <option value="5">5 personnes</option>
+              <option value="6">6 personnes</option>
+            </select>
+            <span class="error-msg" id="err-people"></span>
+          </div>
+        </div>
+
+        <div class="form-consent">
+          <div class="checkbox-container">
+            <input type="checkbox" id="register-rgpd" name="rgpd_consent" required>
+            <label for="register-rgpd">
+              J'accepte que mes données soient traitées dans le cadre de l'organisation des visites du Pop-up Store Galactik Football.
+            </label>
+          </div>
+          <span class="error-msg" id="err-rgpd"></span>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary flux-btn" id="submit-register-btn">
+            <span class="btn-label">Confirmer mon inscription</span>
+          </button>
+        </div>
+        
+        <div class="form-status-message" id="register-status-message" style="display:none;"></div>
+      </form>
+    </div>
+  </div>
+</section>
 
 <!-- ============ 7. NEWSLETTER ============ -->
 <section class="section newsletter-section" id="newsletter">
@@ -244,6 +333,17 @@
     <h3 id="modal-title">Vous êtes inscrit(e) !</h3>
     <p>Votre place pour l'avant-première du Grand Rex est réservée. Rendez-vous en avril 2027, un email de confirmation vous parviendra bientôt.</p>
     <button class="btn btn-outline" id="modal-ok">Parfait</button>
+  </div>
+</div>
+
+<!-- ============ MODALE CONFIRMATION POP-UP STORE ============ -->
+<div class="modal-overlay" id="popup-modal-overlay" hidden>
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="popup-modal-title">
+    <button class="modal-close" id="popup-modal-close" aria-label="Fermer">✕</button>
+    <span class="modal-check">✓</span>
+    <h3 id="popup-modal-title">Inscription Confirmée !</h3>
+    <p id="popup-modal-message">Votre inscription au pop-up store Galactik Football est confirmée. Merci de vous présenter à l’heure du créneau réservé.</p>
+    <button class="btn btn-outline" id="popup-modal-ok">Parfait</button>
   </div>
 </div>
 
@@ -300,7 +400,7 @@
     <button class="modal-close" id="video-modal-close" aria-label="Fermer la vidéo">✕</button>
     <div class="video-container">
       <video id="trailer-video" controls playsinline>
-        <source src="assets/video/GALACTIK_FOOTBALL_—_TEASER_s.mp4" type="video/mp4">
+        <source src="assets/video/histoire.mp4" type="video/mp4">
       </video>
     </div>
   </div>

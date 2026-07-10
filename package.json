@@ -1,0 +1,15 @@
+{
+  "name": "galactik-football-popup-store",
+  "version": "1.0.0",
+  "description": "Système d'inscription pour le Pop-up Store Galactik Football",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "nodemailer": "^6.9.15"
+  },
+  "private": true
+}

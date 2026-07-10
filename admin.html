@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Pop-up Store Galactik Football</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Exo+2:wght@400;600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style-v7.css?v=2">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="header-inner">
+      <div class="brand">
+        <img src="assets/images/logo-v2.png" alt="Galactik Football Logo" class="header-logo-img">
+        <span class="admin-title">Command Center / Espace Admin</span>
+      </div>
+      <a href="/" class="btn btn-outline btn-sm">Retour au site</a>
+    </div>
+  </header>
+
+  <main class="container admin-container">
+    
+    <!-- Title -->
+    <div class="admin-intro">
+      <h1 class="admin-heading"><span class="dot"></span> GESTION DU POP-UP STORE</h1>
+      <p>Suivi des réservations en temps réel, statistiques de fréquentation et journal des confirmations d'e-mails.</p>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="admin-stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total-bookings">-</div>
+        <div class="stat-label">Réservations validées</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-total-people">-</div>
+        <div class="stat-label">Visiteurs attendus</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="stat-occupancy">-</div>
+        <div class="stat-label">Taux d'occupation global</div>
+      </div>
+    </div>
+
+    <!-- Slots Charge breakdown -->
+    <section class="admin-section">
+      <h2 class="admin-section-title">Occupation par créneau horaire</h2>
+      <div class="admin-slots-charge-grid" id="slots-charge-grid">
+        <!-- Loaded dynamically -->
+        <div class="slot-loading">Chargement des statistiques de charge...</div>
+      </div>
+    </section>
+
+    <!-- Main registrations list -->
+    <section class="admin-section">
+      <div class="section-header-row">
+        <h2 class="admin-section-title">Liste des inscrits</h2>
+        <div class="section-actions">
+          <input type="text" id="admin-search-input" placeholder="Rechercher (nom, e-mail, téléphone...)" aria-label="Recherche">
+          <a href="/api/admin/export-csv" class="btn btn-primary flux-btn" id="export-csv-btn">
+            <span class="btn-label">Exporter en CSV</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table class="admin-table" id="registrations-table">
+          <thead>
+            <tr>
+              <th>Nom / Prénom</th>
+              <th>E-mail</th>
+              <th>Téléphone</th>
+              <th>Créneau horaire</th>
+              <th style="text-align: center;">Personnes</th>
+              <th>Date d'inscription</th>
+              <th style="text-align: center;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="registrations-table-body">
+            <tr>
+              <td colspan="7" class="table-loading">Chargement des inscriptions...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Simulated emails log panel -->
+    <section class="admin-section">
+      <h2 class="admin-section-title">Journal d'envoi d'e-mails de confirmation (Simulation)</h2>
+      <p class="admin-section-desc">Ce journal liste les e-mails de confirmation générés par l'application. Si aucun serveur SMTP n'est configuré, les e-mails sont journalisés ici à des fins de test.</p>
+      
+      <div class="email-logs-viewer">
+        <div class="email-logs-list" id="email-logs-list">
+          <div class="slot-loading">Aucun e-mail envoyé pour le moment.</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" style="margin-top: 100px;">
+    <div class="container footer-inner">
+      <p class="footer-production">Espace d'administration sécurisé — Galactik Football Pop-up Store</p>
+    </div>
+  </footer>
+
+  <script>
+    // Fetch and populate admin panel data
+    let registrations = [];
+    let stats = {};
+    let emails = [];
+
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/admin/stats');
+        if (!res.ok) throw new Error("Accès refusé");
+        stats = await res.json();
+        
+        document.getElementById('stat-total-bookings').textContent = stats.totalReservations;
+        document.getElementById('stat-total-people').textContent = stats.totalPeople;
+        
+        // Overall occupancy (Total limit = 6 slots * 200 = 1200)
+        const totalCapacity = 1200;
+        const occupancyRate = totalCapacity > 0 ? ((stats.totalPeople / totalCapacity) * 100).toFixed(1) : 0;
+        document.getElementById('stat-occupancy').textContent = `${occupancyRate}%`;
+
+        // Render slots breakdown
+        renderSlotsBreakdown(stats.slots);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderSlotsBreakdown(slots) {
+      const container = document.getElementById('slots-charge-grid');
+      if (!container) return;
+      container.innerHTML = "";
+
+      slots.forEach(slot => {
+        const percent = ((slot.registered / slot.capacity) * 100).toFixed(0);
+        let barClass = "progress-normal";
+        if (slot.remaining <= 0) barClass = "progress-full";
+        else if (slot.remaining < 40) barClass = "progress-warning";
+
+        const card = document.createElement('div');
+        card.className = "slot-charge-card";
+        card.innerHTML = `
+          <div class="slot-charge-header">
+            <span class="slot-charge-time">${slot.slot}</span>
+            <span class="slot-charge-count">${slot.registered} / ${slot.capacity} places</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill ${barClass}" style="width: ${percent}%"></div>
+          </div>
+          <div class="slot-charge-footer">
+            <span>${percent}% de remplissage</span>
+            <span class="slot-charge-remaining">${slot.remaining} restantes</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function loadRegistrations() {
+      try {
+        const res = await fetch('/api/admin/registrations');
+        if (!res.ok) throw new Error("Accès refusé");
+        registrations = await res.json();
+        renderTable(registrations);
+      } catch (err) {
+        console.error(err);
+        document.getElementById('registrations-table-body').innerHTML = `
+          <tr>
+            <td colspan="7" class="table-error">Erreur de chargement des données. Veuillez vérifier vos identifiants.</td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('registrations-table-body');
+      if (!tbody) return;
+      
+      if (data.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="table-empty">Aucune inscription trouvée.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = "";
+      data.forEach(reg => {
+        const tr = document.createElement('tr');
+        const formattedDate = new Date(reg.created_at).toLocaleString('fr-FR');
+        
+        tr.innerHTML = `
+          <td class="font-bold">${reg.lastname.toUpperCase()} ${reg.firstname}</td>
+          <td><a href="mailto:${reg.email}" class="text-link">${reg.email}</a></td>
+          <td>${reg.phone}</td>
+          <td class="font-bold text-accent">${reg.slot}</td>
+          <td style="text-align: center;"><span class="people-badge">${reg.people_count}</span></td>
+          <td class="text-muted">${formattedDate}</td>
+          <td style="text-align: center;">
+            <button class="btn btn-delete btn-sm" onclick="deleteRegistration(${reg.id})">Supprimer</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    async function deleteRegistration(id) {
+      if (!confirm("Êtes-vous sûr de vouloir supprimer cette inscription ? Cette action mettra à jour le nombre de places disponibles.")) {
+        return;
+      }
+      
+      try {
+        const res = await fetch(`/api/admin/registrations/${id}`, {
+          method: 'DELETE'
+        });
+        const result = await res.json();
+        if (result.success) {
+          // Reload everything
+          loadStats();
+          loadRegistrations();
+          loadEmails();
+        } else {
+          alert(result.error || "Erreur de suppression");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Impossible de supprimer la réservation.");
+      }
+    }
+
+    async function loadEmails() {
+      try {
+        const res = await fetch('/api/admin/emails');
+        if (!res.ok) throw new Error("Accès refusé");
+        emails = await res.json();
+        renderEmails(emails);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function renderEmails(data) {
+      const container = document.getElementById('email-logs-list');
+      if (!container) return;
+
+      if (data.length === 0) {
+        container.innerHTML = `<div class="slot-loading">Aucun e-mail généré pour le moment.</div>`;
+        return;
+      }
+
+      container.innerHTML = "";
+      // Display emails from newest to oldest
+      [...data].reverse().forEach(mail => {
+        const item = document.createElement('div');
+        item.className = "email-log-item";
+        const formattedDate = new Date(mail.sentAt).toLocaleString('fr-FR');
+        
+        item.innerHTML = `
+          <div class="email-log-header">
+            <span><strong>Destinataire :</strong> ${mail.to}</span>
+            <span class="email-log-date">${formattedDate}</span>
+          </div>
+          <div class="email-log-subject"><strong>Sujet :</strong> ${mail.subject}</div>
+          <pre class="email-log-body">${mail.body}</pre>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Search and filter
+    const searchInput = document.getElementById('admin-search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        const query = searchInput.value.toLowerCase().trim();
+        if (!query) {
+          renderTable(registrations);
+          return;
+        }
+
+        const filtered = registrations.filter(reg => {
+          return reg.firstname.toLowerCase().includes(query) ||
+                 reg.lastname.toLowerCase().includes(query) ||
+                 reg.email.toLowerCase().includes(query) ||
+                 reg.phone.includes(query) ||
+                 reg.slot.toLowerCase().includes(query);
+        });
+        renderTable(filtered);
+      });
+    }
+
+    // Initial loading
+    loadStats();
+    loadRegistrations();
+    loadEmails();
+  </script>
+</body>
+</html>

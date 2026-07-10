@@ -1,0 +1,7 @@
+node_modules/
+db.sqlite
+sent_emails.json
+*.backup
+.DS_Store
+assets/.DS_Store
+assets/audio/.DS_Store
